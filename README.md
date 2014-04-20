@@ -32,7 +32,7 @@ Tag [`01-basic-code`](https://github.com/joekearney/guava-testlib-example/tree/0
 public class CalculatorTestSuiteBuilder extends
       FeatureSpecificTestSuiteBuilder<CalculatorTestSuiteBuilder, CalculatorTestSubjectGenerator> {
 	@Override protected List<Class<? extends AbstractTester>> getTesters() {
-		return ImmutableList.<Class<? extends AbstractTester>>of();
+		return ImmutableList.of();
 	}
 	public static CalculatorTestSuiteBuilder using(CalculatorTestSubjectGenerator generator) {
 		return new CalculatorTestSuiteBuilder().usingGenerator(generator);
@@ -70,6 +70,13 @@ public class AddTester extends CalculatorTester {
 		assertEqualsExact(result, 0);
 	}
 }
+```
+
+Now the test class can be added to the list of testers in the `CalculatorTestSuiteBuilder`:
+```java
+	@Override protected List<Class<? extends AbstractTester>> getTesters() {
+		return ImmutableList.of(AddTester.class);
+	}
 ```
 
 # Running the tests
