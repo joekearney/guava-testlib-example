@@ -1,5 +1,6 @@
 package joe.testlib;
 
+import static joe.testlib.CalculatorFeature.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -11,20 +12,26 @@ public class TestsForCalculators {
 				@Override public Calculator createTestSubject() {
 					return new BigDecimalCalculator();
 				}})
-			.named("BigDecimalCalculator")
+			.withFeatures(GENERAL_PURPOSE)
 			.createTestSuite());
-		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
-			@Override public Calculator createTestSubject() {
-				return new IntegerStrictCalculator();
-			}})
-		.named("IntegerStrictCalculator")
-		.createTestSuite());
 		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
 				@Override public Calculator createTestSubject() {
-					return new LyingCalculator();
+					return new IntegerCalculator();
 				}})
-			.named("LyingCalculator")
+			.withFeatures(INTEGER_PARAMETERS, ANY_SIGN, ANY_OPERATION)
 			.createTestSuite());
+		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
+				@Override public Calculator createTestSubject() {
+					return new PositiveIntegerAddingCalculator();
+				}})
+			.withFeatures(INTEGER_PARAMETERS, POSITIVE_NUMBERS, ADDITION)
+			.createTestSuite());
+//		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
+//				@Override public Calculator createTestSubject() {
+//					return new LyingCalculator();
+//				}})
+//			.withFeatures(CalculatorFeature.GENERAL_PURPOSE)
+//			.createTestSuite());
 		
 		return suite;
 	}

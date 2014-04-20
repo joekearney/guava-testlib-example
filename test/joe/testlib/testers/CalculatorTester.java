@@ -19,4 +19,11 @@ public class CalculatorTester extends AbstractTester<CalculatorTestSubjectGenera
 		assertTrue("Expected [" + expected + "] but got [" + actual + "]",
 				actual.compareTo(expected) == 0);
 	}
+
+	protected Number add(Number a, Number b) {
+		return getSubjectGenerator().createTestSubject().add(a, b);
+	}
+	protected Number multiply(Number a, Number b) {
+		return getSubjectGenerator().createTestSubject().multiply(a, b);
+	}
 }

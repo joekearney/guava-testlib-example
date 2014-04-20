@@ -8,8 +8,10 @@ import java.math.BigDecimal;
  * @author Joe Kearney
  */
 public final class BigDecimalCalculator implements Calculator {
-	@Override
-	public Number add(Number a, Number b) {
+	@Override	public Number add(Number a, Number b) {
 		return Calculator.toBigDecimal(a).add(Calculator.toBigDecimal(b));
+	}
+	@Override	public Number multiply(Number a, Number b) {
+		return Calculator.toBigDecimal(a).multiply(Calculator.toBigDecimal(b));
 	}
 }
