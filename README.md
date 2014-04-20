@@ -14,7 +14,7 @@ This project shows a simple and contrived example of how to set up these tests. 
 
 # Let's get started
 
-We'll start with a really simple calculator interface. We can consider an implementation that uses `BigDecimal` to make accurate calculations, and a strict integer calculator that doesn't know about decimals and throws if passed anything other than an `Integer`.
+We'll start with a really simple calculator interface. We can consider an implementation that uses `BigDecimal` to make accurate calculations, and an integer calculator that doesn't know about decimals and throws if passed anything other than an `Integer`.
 
 ```java
 public interface Calculator {
@@ -98,4 +98,69 @@ public class TestsForCalculators {
 		return suite;
 	}
 }
+```
+
+Now you can just keep adding tests that are independent of the impleentations.
+
+# Features
+
+Different implementations can have different features. If we know that a specific Calculator won't handle non-integers, or negative numbers, say, then the tests asserting behaviour around these features shouldn't be run. Even better, we should test that they throw `UnsupportedOperationException` or some other consistent response.
+
+Features are declared as an enum, and carry their own `@Require` annotation to determine which features are tested by which test cases.
+
+Most of this class is boilerplate, typed accordingly. The only interesting bit is the enum constants that you declare, and their implied features. These can be arbitrarily nested.
+
+```java
+@SuppressWarnings("unchecked")
+public enum CalculatorFeature implements Feature<Calculator> {
+	POSITIVE_NUMBERS,
+	NEGATIVE_NUMBERS,
+	ANY_SIGN(NEGATIVE_NUMBERS, POSITIVE_NUMBERS),
+	
+	INTEGER_PARAMETERS,
+	FLOATING_POINT_PARAMETERS,
+	ANY_TYPE(INTEGER_PARAMETERS, FLOATING_POINT_PARAMETERS),
+	
+  GENERAL_PURPOSE(ANY_SIGN, ANY_TYPE),
+  ;
+
+  private final Set<Feature<? super Calculator>> implied;
+
+  CalculatorFeature(Feature<? super Calculator> ... implied) {
+    this.implied = ImmutableSet.copyOf(implied);
+  }
+
+  @Override
+  public Set<Feature<? super Calculator>> getImpliedFeatures() {
+    return implied;
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @TesterAnnotation
+  public @interface Require {
+    public abstract CalculatorFeature[] value() default {};
+    public abstract CalculatorFeature[] absent() default {};
+  }
+}
+```
+
+Then, for example, a test case is annotated thus:
+```java
+	@Require({CalculatorFeature.NEGATIVE_NUMBERS, CalculatorFeature.INTEGER_PARAMETERS})
+	public void testMinusOnePlusMinusOne() {
+		Number result = getSubjectGenerator().createTestSubject().add(-1, -1);
+		assertEqualsExact(result, -2);
+	}
+```
+
+and the test suites are constructed declaring the features implemented by each implementation.
+```java
+		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
+				@Override public Calculator createTestSubject() {
+					return new IntegerCalculator();
+				}})
+			.named("IntegerStrictCalculator")
+			.withFeatures(CalculatorFeature.INTEGER_PARAMETERS, CalculatorFeature.ANY_SIGN)
+			.createTestSuite());
 ```
