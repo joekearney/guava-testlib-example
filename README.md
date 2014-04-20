@@ -148,4 +148,4 @@ and the test suites are constructed declaring the features implemented by each i
 
 # Next steps
 
-Our Calculators don't do much, we need to add implementations of other operations, such as multiply. We could add a new `MULTIPLY` feature so that only those calculators that support are tested.
+Our Calculators don't do much, we need to add implementations of other operations, such as multiply. We could add a new `MULTIPLY` feature so that only those calculators that support are tested. Tester classes can be annnotated as well as methods, so we might annotate the `AddTester` with `@Require(CalculatorFeature.ADDITION)`.
