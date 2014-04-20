@@ -38,12 +38,23 @@
           <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
         </div>
 
-        <h1>
-<a name="guava-testlib-example" class="anchor" href="#guava-testlib-example"><span class="octicon octicon-link"></span></a>guava-testlib-example</h1>
-
-<p>Guava Testlib was written to test collections implementations exhaustively. It's general enough to allow tests to be written for any interface and have them run against many different implementations.</p>
+        <p>Guava Testlib was written to test collections implementations exhaustively. It's general enough to allow tests to be written for any interface and have them run against many different implementations. It generates the cross product (filtered according to features) of tests and implementations and puts them in a nice hierarchy that looks great in Eclipse.</p>
 
 <p>Tests can be annotated with <code>Feature</code>s that correspond to differences in implementations of the interface specification – the same set of tests can be used to test mutable and immutable collections, for example, and the framework will decide which tests to add to which suite.</p>
+
+<p>This project shows a simple and contrived example of how to set up these tests. We have a <code>Calculator</code> interface and various implementations that support some of the operations for some of the parameters.</p>
+
+<hr><h1>
+<a name="what-are-the-components" class="anchor" href="#what-are-the-components"><span class="octicon octicon-link"></span></a>What are the components?</h1>
+
+<ul>
+<li>
+<code>FeatureSpecificTestSuiteBuilder</code> – this creates the test suite. Extend this, pass it a subject generator and call <code>createTestSuite</code>. This is where the set of tester classes is declared.</li>
+<li>
+<code>TestSubjectGenerator</code> &amp;ndaash; this is just a supplier of your implementation.</li>
+<li>
+<code>AbstractTester</code> – extend this to provide actual tests. Test methods should be JUnit 3 style tests, not using <code>@Test</code> annotations. This class provides access to the subject generator. You might also want an abstract subclass fro m which your test cases extend if you want to give default assertion methods, for example.</li>
+</ul>
       </section>
 
     </div>
