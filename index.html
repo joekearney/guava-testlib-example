@@ -54,7 +54,30 @@
 <code>TestSubjectGenerator</code> &amp;ndaash; this is just a supplier of your implementation.</li>
 <li>
 <code>AbstractTester</code> – extend this to provide actual tests. Test methods should be JUnit 3 style tests, not using <code>@Test</code> annotations. This class provides access to the subject generator. You might also want an abstract subclass fro m which your test cases extend if you want to give default assertion methods, for example.</li>
-</ul>
+</ul><h1>
+<a name="lets-get-started" class="anchor" href="#lets-get-started"><span class="octicon octicon-link"></span></a>Let's get started</h1>
+
+<p>We'll work through commits to this repository.</p>
+
+<p>Tag <a href="https://github.com/joekearney/guava-testlib-example/tree/01-basic-code"><code>01-basic-code</code></a> provides first basic implementations of our <code>Calculator</code> API. Tag <a href="https://github.com/joekearney/guava-testlib-example/tree/02-basic-testlib"><code>02-basic-testlib</code></a> adds the basics of the test framework. In particular:</p>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculatorTestSuiteBuilder</span> <span class="kd">extends</span>
+      <span class="n">FeatureSpecificTestSuiteBuilder</span><span class="o">&lt;</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">,</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span> <span class="n">getTesters</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span><span class="n">of</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">CalculatorTestSuiteBuilder</span> <span class="nf">using</span><span class="o">(</span><span class="n">CalculatorTestSubjectGenerator</span> <span class="n">generator</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">CalculatorTestSuiteBuilder</span><span class="o">().</span><span class="na">usingGenerator</span><span class="o">(</span><span class="n">generator</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>As soon as we write any test classes we'll add those classes to the list returned from <code>getTesters</code>.</p>
+
+<h1>
+<a name="writing-a-first-test" class="anchor" href="#writing-a-first-test"><span class="octicon octicon-link"></span></a>Writing a first test</h1>
       </section>
 
     </div>
