@@ -9,7 +9,7 @@ This project shows a simple and contrived example of how to set up these tests. 
 # What are the components?
 
 * `FeatureSpecificTestSuiteBuilder` &ndash; this creates the test suite. Extend this, pass it a subject generator and call `createTestSuite`. This is where the set of tester classes is declared.
-* `TestSubjectGenerator` &ndaash; this is just a supplier of your implementation.
+* `TestSubjectGenerator` &ndash; this is just a supplier of your implementation.
 * `AbstractTester` &ndash; extend this to provide actual tests. Test methods should be JUnit 3 style tests, not using `@Test` annotations. This class provides access to the subject generator. You might also want an abstract subclass fro m which your test cases extend if you want to give default assertion methods, for example.
 
 # Let's get started
