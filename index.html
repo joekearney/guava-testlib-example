@@ -73,7 +73,7 @@
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculatorTestSuiteBuilder</span> <span class="kd">extends</span>
       <span class="n">FeatureSpecificTestSuiteBuilder</span><span class="o">&lt;</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">,</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="nd">@Override</span> <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span> <span class="n">getTesters</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span><span class="n">of</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.</span><span class="na">of</span><span class="o">();</span>
     <span class="o">}</span>
     <span class="kd">public</span> <span class="kd">static</span> <span class="n">CalculatorTestSuiteBuilder</span> <span class="nf">using</span><span class="o">(</span><span class="n">CalculatorTestSubjectGenerator</span> <span class="n">generator</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">return</span> <span class="k">new</span> <span class="nf">CalculatorTestSuiteBuilder</span><span class="o">().</span><span class="na">usingGenerator</span><span class="o">(</span><span class="n">generator</span><span class="o">);</span>
@@ -110,6 +110,13 @@
         <span class="n">assertEqualsExact</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
     <span class="o">}</span>
 <span class="o">}</span>
+</pre></div>
+
+<p>Now the test class can be added to the list of testers in the <code>CalculatorTestSuiteBuilder</code>:</p>
+
+<div class="highlight highlight-java"><pre>    <span class="nd">@Override</span> <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span> <span class="n">getTesters</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">AddTester</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="o">}</span>
 </pre></div>
 
 <h1>
