@@ -14,7 +14,7 @@ This project shows a simple and contrived example of how to set up these tests. 
 
 # Let's get started
 
-We'll start with a really simple calculator interface. We can consider an implementation that uses `BigDecimal` to make accurate calculations, and an integer calculator that doesn't know about decimals and throws if passed anything other than an `Integer`.
+We'll start with a really simple calculator interface. We can consider an implementation that uses `BigDecimal` to make accurate calculations, and an integer calculator that doesn't know about decimals and throws if passed anything other than an `Integer`. Or even a broken integer calculator that can't handle negative numbers.
 
 ```java
 public interface Calculator {
@@ -26,7 +26,7 @@ public interface Calculator {
 }
 ```
 
-Tag [`01-basic-code`](https://github.com/joekearney/guava-testlib-example/tree/01-basic-code) provides first basic implementations of our `Calculator` API. Tag [`02-basic-testlib`](https://github.com/joekearney/guava-testlib-example/tree/02-basic-testlib) adds the basics of the test framework. In particular, the test suite builder:
+The central part of the test framework is test suite builder that you need to write. The below is the trivial such builder. You can do all sorts of other things in here, from simple things like determining the name automatically from the generator, to creating more complex hierarchies of tests (see `TestsForSetsInJavaUtil`, for example).
 
 ```java
 public class CalculatorTestSuiteBuilder extends
@@ -104,11 +104,9 @@ Now you can just keep adding tests that are independent of the impleentations.
 
 # Features
 
-Different implementations can have different features. If we know that a specific Calculator won't handle non-integers, or negative numbers, say, then the tests asserting behaviour around these features shouldn't be run. Even better, we should test that they throw `UnsupportedOperationException` or some other consistent response.
+Different implementations can have different features. If we know that a specific Calculator won't handle non-integers, or negative numbers, say, then the tests asserting behaviour around these features shouldn't be run. Even better, we should test that they throw `IllegalArgumentException` or some other consistent response.
 
-Features are declared as an enum, and carry their own `@Require` annotation to determine which features are tested by which test cases.
-
-Most of this class is boilerplate, typed accordingly. The only interesting bit is the enum constants that you declare, and their implied features. These can be arbitrarily nested.
+Features are declared as an enum, and carry their own `@Require` annotation to determine which features are tested by which test cases. Most of this class is boilerplate setting, typed accordingly. The only interesting bit is the enum constants that you declare, and their implied features (passed as enum constructor arguments), which can be arbitrarily nested. See `CalculatorFeature` for the rest of the boilerplate.
 
 ```java
 @SuppressWarnings("unchecked")
@@ -124,24 +122,7 @@ public enum CalculatorFeature implements Feature<Calculator> {
   GENERAL_PURPOSE(ANY_SIGN, ANY_TYPE),
   ;
 
-  private final Set<Feature<? super Calculator>> implied;
-
-  CalculatorFeature(Feature<? super Calculator> ... implied) {
-    this.implied = ImmutableSet.copyOf(implied);
-  }
-
-  @Override
-  public Set<Feature<? super Calculator>> getImpliedFeatures() {
-    return implied;
-  }
-
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @TesterAnnotation
-  public @interface Require {
-    public abstract CalculatorFeature[] value() default {};
-    public abstract CalculatorFeature[] absent() default {};
-  }
+	/* snip boilerplate */
 }
 ```
 
@@ -160,7 +141,11 @@ and the test suites are constructed declaring the features implemented by each i
 				@Override public Calculator createTestSubject() {
 					return new IntegerCalculator();
 				}})
-			.named("IntegerStrictCalculator")
+			.named("IntegerCalculator")
 			.withFeatures(CalculatorFeature.INTEGER_PARAMETERS, CalculatorFeature.ANY_SIGN)
 			.createTestSuite());
 ```
+
+# Next steps
+
+Our Calculators don't do much, we need to add implementations of other operations, such as multiply. We could add a new `MULTIPLY` feature so that only those calculators that support are tested.
