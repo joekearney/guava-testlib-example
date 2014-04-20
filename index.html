@@ -57,7 +57,7 @@
 </ul><h1>
 <a name="lets-get-started" class="anchor" href="#lets-get-started"><span class="octicon octicon-link"></span></a>Let's get started</h1>
 
-<p>We'll start with a really simple calculator interface. We can consider an implementation that uses <code>BigDecimal</code> to make accurate calculations, and a strict integer calculator that doesn't know about decimals and throws if passed anything other than an <code>Integer</code>.</p>
+<p>We'll start with a really simple calculator interface. We can consider an implementation that uses <code>BigDecimal</code> to make accurate calculations, and an integer calculator that doesn't know about decimals and throws if passed anything other than an <code>Integer</code>. Or even a broken integer calculator that can't handle negative numbers.</p>
 
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Calculator</span> <span class="o">{</span>
     <span class="k">default</span> <span class="n">Number</span> <span class="nf">add</span><span class="o">(</span><span class="n">Number</span> <span class="n">a</span><span class="o">,</span> <span class="n">Number</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">UnsupportedOperationException</span><span class="o">();</span> <span class="o">}</span>
@@ -68,7 +68,7 @@
 <span class="o">}</span>
 </pre></div>
 
-<p>Tag <a href="https://github.com/joekearney/guava-testlib-example/tree/01-basic-code"><code>01-basic-code</code></a> provides first basic implementations of our <code>Calculator</code> API. Tag <a href="https://github.com/joekearney/guava-testlib-example/tree/02-basic-testlib"><code>02-basic-testlib</code></a> adds the basics of the test framework. In particular, the test suite builder:</p>
+<p>The central part of the test framework is test suite builder that you need to write. The below is the trivial such builder. You can do all sorts of other things in here, from simple things like determining the name automatically from the generator, to creating more complex hierarchies of tests (see <code>TestsForSetsInJavaUtil</code>, for example).</p>
 
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculatorTestSuiteBuilder</span> <span class="kd">extends</span>
       <span class="n">FeatureSpecificTestSuiteBuilder</span><span class="o">&lt;</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">,</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">&gt;</span> <span class="o">{</span>
@@ -139,6 +139,57 @@
     <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
+
+<p>Now you can just keep adding tests that are independent of the impleentations.</p>
+
+<h1>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<p>Different implementations can have different features. If we know that a specific Calculator won't handle non-integers, or negative numbers, say, then the tests asserting behaviour around these features shouldn't be run. Even better, we should test that they throw <code>IllegalArgumentException</code> or some other consistent response.</p>
+
+<p>Features are declared as an enum, and carry their own <code>@Require</code> annotation to determine which features are tested by which test cases. Most of this class is boilerplate setting, typed accordingly. The only interesting bit is the enum constants that you declare, and their implied features (passed as enum constructor arguments), which can be arbitrarily nested. See <code>CalculatorFeature</code> for the rest of the boilerplate.</p>
+
+<div class="highlight highlight-java"><pre><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"unchecked"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">CalculatorFeature</span> <span class="kd">implements</span> <span class="n">Feature</span><span class="o">&lt;</span><span class="n">Calculator</span><span class="o">&gt;</span> <span class="o">{</span>
+    <span class="n">POSITIVE_NUMBERS</span><span class="o">,</span>
+    <span class="n">NEGATIVE_NUMBERS</span><span class="o">,</span>
+    <span class="n">ANY_SIGN</span><span class="o">(</span><span class="n">NEGATIVE_NUMBERS</span><span class="o">,</span> <span class="n">POSITIVE_NUMBERS</span><span class="o">),</span>
+
+    <span class="n">INTEGER_PARAMETERS</span><span class="o">,</span>
+    <span class="n">FLOATING_POINT_PARAMETERS</span><span class="o">,</span>
+    <span class="n">ANY_TYPE</span><span class="o">(</span><span class="n">INTEGER_PARAMETERS</span><span class="o">,</span> <span class="n">FLOATING_POINT_PARAMETERS</span><span class="o">),</span>
+
+  <span class="n">GENERAL_PURPOSE</span><span class="o">(</span><span class="n">ANY_SIGN</span><span class="o">,</span> <span class="n">ANY_TYPE</span><span class="o">),</span>
+  <span class="o">;</span>
+
+    <span class="cm">/* snip boilerplate */</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>Then, for example, a test case is annotated thus:</p>
+
+<div class="highlight highlight-java"><pre>    <span class="nd">@Require</span><span class="o">({</span><span class="n">CalculatorFeature</span><span class="o">.</span><span class="na">NEGATIVE_NUMBERS</span><span class="o">,</span> <span class="n">CalculatorFeature</span><span class="o">.</span><span class="na">INTEGER_PARAMETERS</span><span class="o">})</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testMinusOnePlusMinusOne</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Number</span> <span class="n">result</span> <span class="o">=</span> <span class="n">getSubjectGenerator</span><span class="o">().</span><span class="na">createTestSubject</span><span class="o">().</span><span class="na">add</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">assertEqualsExact</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="o">-</span><span class="mi">2</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+
+<p>and the test suites are constructed declaring the features implemented by each implementation.</p>
+
+<div class="highlight highlight-java"><pre>        <span class="n">suite</span><span class="o">.</span><span class="na">addTest</span><span class="o">(</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">.</span><span class="na">using</span><span class="o">(</span><span class="k">new</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">()</span> <span class="o">{</span>
+                <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">Calculator</span> <span class="n">createTestSubject</span><span class="o">()</span> <span class="o">{</span>
+                    <span class="k">return</span> <span class="k">new</span> <span class="nf">IntegerCalculator</span><span class="o">();</span>
+                <span class="o">}})</span>
+            <span class="o">.</span><span class="na">named</span><span class="o">(</span><span class="s">"IntegerCalculator"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">withFeatures</span><span class="o">(</span><span class="n">CalculatorFeature</span><span class="o">.</span><span class="na">INTEGER_PARAMETERS</span><span class="o">,</span> <span class="n">CalculatorFeature</span><span class="o">.</span><span class="na">ANY_SIGN</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">createTestSuite</span><span class="o">());</span>
+</pre></div>
+
+<h1>
+<a name="next-steps" class="anchor" href="#next-steps"><span class="octicon octicon-link"></span></a>Next steps</h1>
+
+<p>Our Calculators don't do much, we need to add implementations of other operations, such as multiply. We could add a new <code>MULTIPLY</code> feature so that only those calculators that support are tested. Tester classes can be annnotated as well as methods, so we might annotate the <code>AddTester</code> with <code>@Require(CalculatorFeature.ADDITION)</code>.</p>
       </section>
 
     </div>
