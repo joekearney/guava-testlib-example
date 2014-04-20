@@ -62,6 +62,9 @@
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Calculator</span> <span class="o">{</span>
     <span class="k">default</span> <span class="n">Number</span> <span class="nf">add</span><span class="o">(</span><span class="n">Number</span> <span class="n">a</span><span class="o">,</span> <span class="n">Number</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">UnsupportedOperationException</span><span class="o">();</span> <span class="o">}</span>
     <span class="k">default</span> <span class="n">Number</span> <span class="nf">multiply</span><span class="o">(</span><span class="n">Number</span> <span class="n">a</span><span class="o">,</span> <span class="n">Number</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">UnsupportedOperationException</span><span class="o">();</span> <span class="o">}</span>
+
+    <span class="cm">/** Converts some useful classes of {@link Number} to {@link BigDecimal}. */</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">BigDecimal</span> <span class="nf">toBigDecimal</span><span class="o">(</span><span class="n">Number</span> <span class="n">num</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 
@@ -69,8 +72,7 @@
 
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculatorTestSuiteBuilder</span> <span class="kd">extends</span>
       <span class="n">FeatureSpecificTestSuiteBuilder</span><span class="o">&lt;</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">,</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">&gt;</span> <span class="o">{</span>
-    <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span> <span class="n">getTesters</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span> <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span> <span class="n">getTesters</span><span class="o">()</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.&lt;</span><span class="n">Class</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&gt;&gt;</span><span class="n">of</span><span class="o">();</span>
     <span class="o">}</span>
     <span class="kd">public</span> <span class="kd">static</span> <span class="n">CalculatorTestSuiteBuilder</span> <span class="nf">using</span><span class="o">(</span><span class="n">CalculatorTestSubjectGenerator</span> <span class="n">generator</span><span class="o">)</span> <span class="o">{</span>
@@ -88,11 +90,15 @@
 
 <div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CalculatorTester</span> <span class="kd">extends</span> <span class="n">AbstractTester</span><span class="o">&lt;</span><span class="n">CalculatorTestSubjectGenerator</span><span class="o">&gt;</span> <span class="o">{</span>
     <span class="kd">protected</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">assertEqualsExact</span><span class="o">(</span><span class="n">Number</span> <span class="n">actual</span><span class="o">,</span> <span class="kt">long</span> <span class="n">expected</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">assertTrue</span><span class="o">(</span><span class="s">"Expected ["</span> <span class="o">+</span> <span class="n">expected</span> <span class="o">+</span> <span class="s">"] but got ["</span> <span class="o">+</span> <span class="n">actual</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">,</span>
-            <span class="n">toBigDecimal</span><span class="o">(</span><span class="n">actual</span><span class="o">).</span><span class="na">compareTo</span><span class="o">(</span><span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="n">expected</span><span class="o">))</span> <span class="o">==</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="n">assertEqualsExact</span><span class="o">(</span><span class="n">toBigDecimal</span><span class="o">(</span><span class="n">actual</span><span class="o">),</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="n">expected</span><span class="o">));</span>
     <span class="o">}</span>
-    <span class="cm">/** Converts some useful classes of {@link Number} to {@link BigDecimal}. */</span>
-    <span class="kd">private</span> <span class="kd">static</span> <span class="n">BigDecimal</span> <span class="nf">toBigDecimal</span><span class="o">(</span><span class="n">Number</span> <span class="n">actual</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span> <span class="o">}</span>
+    <span class="kd">protected</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">assertEqualsExact</span><span class="o">(</span><span class="n">Number</span> <span class="n">actual</span><span class="o">,</span> <span class="kt">double</span> <span class="n">expected</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">assertEqualsExact</span><span class="o">(</span><span class="n">toBigDecimal</span><span class="o">(</span><span class="n">actual</span><span class="o">),</span> <span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="n">expected</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="kd">protected</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">assertEqualsExact</span><span class="o">(</span><span class="n">BigDecimal</span> <span class="n">actual</span><span class="o">,</span> <span class="n">BigDecimal</span> <span class="n">expected</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">assertTrue</span><span class="o">(</span><span class="s">"Expected ["</span> <span class="o">+</span> <span class="n">expected</span> <span class="o">+</span> <span class="s">"] but got ["</span> <span class="o">+</span> <span class="n">actual</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">,</span>
+                <span class="n">actual</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">expected</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 
@@ -102,6 +108,27 @@
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testAddZero</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
         <span class="n">Number</span> <span class="n">result</span> <span class="o">=</span> <span class="n">getSubjectGenerator</span><span class="o">().</span><span class="na">createTestSubject</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
         <span class="n">assertEqualsExact</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<h1>
+<a name="running-the-tests" class="anchor" href="#running-the-tests"><span class="octicon octicon-link"></span></a>Running the tests</h1>
+
+<p>The builder builds the test suite for a subject generator that you provide. Here, all the generator has to do is to supply an instance the calculator.</p>
+
+<div class="highlight highlight-java"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestsForCalculators</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Test</span> <span class="nf">suite</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">TestSuite</span> <span class="n">suite</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestSuite</span><span class="o">(</span><span class="s">"Calculators"</span><span class="o">);</span>
+
+        <span class="n">suite</span><span class="o">.</span><span class="na">addTest</span><span class="o">(</span><span class="n">CalculatorTestSuiteBuilder</span><span class="o">.</span><span class="na">using</span><span class="o">(</span><span class="k">new</span> <span class="n">CalculatorTestSubjectGenerator</span><span class="o">()</span> <span class="o">{</span>
+                <span class="nd">@Override</span> <span class="kd">public</span> <span class="n">Calculator</span> <span class="n">createTestSubject</span><span class="o">()</span> <span class="o">{</span>
+                    <span class="k">return</span> <span class="k">new</span> <span class="nf">BigDecimalCalculator</span><span class="o">();</span>
+                <span class="o">}})</span>
+            <span class="o">.</span><span class="na">named</span><span class="o">(</span><span class="s">"BigDecimalCalculator"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">createTestSuite</span><span class="o">());</span>
+
+        <span class="k">return</span> <span class="n">suite</span><span class="o">;</span>
     <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
