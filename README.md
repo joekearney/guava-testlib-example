@@ -20,6 +20,9 @@ We'll start with a really simple calculator interface. We can consider an implem
 public interface Calculator {
 	default Number add(Number a, Number b) { throw new UnsupportedOperationException(); }
 	default Number multiply(Number a, Number b) { throw new UnsupportedOperationException(); }
+	
+	/** Converts some useful classes of {@link Number} to {@link BigDecimal}. */
+	public static BigDecimal toBigDecimal(Number num) { ... }
 }
 ```
 
@@ -46,11 +49,15 @@ To start with, let's write a superclass for our test cases, which can contain th
 ```java
 public class CalculatorTester extends AbstractTester<CalculatorTestSubjectGenerator> {
 	protected static void assertEqualsExact(Number actual, long expected) {
-		assertTrue("Expected [" + expected + "] but got [" + actual + "]",
-			toBigDecimal(actual).compareTo(new BigDecimal(expected)) == 0);
+		assertEqualsExact(toBigDecimal(actual), new BigDecimal(expected));
 	}
-	/** Converts some useful classes of {@link Number} to {@link BigDecimal}. */
-	private static BigDecimal toBigDecimal(Number actual) { ... }
+	protected static void assertEqualsExact(Number actual, double expected) {
+		assertEqualsExact(toBigDecimal(actual), new BigDecimal(expected));
+	}
+	protected static void assertEqualsExact(BigDecimal actual, BigDecimal expected) {
+		assertTrue("Expected [" + expected + "] but got [" + actual + "]",
+				actual.compareTo(expected) == 0);
+	}
 }
 ```
 
@@ -61,6 +68,27 @@ public class AddTester extends CalculatorTester {
 	public void testAddZero() throws Exception {
 		Number result = getSubjectGenerator().createTestSubject().add(0, 0);
 		assertEqualsExact(result, 0);
+	}
+}
+```
+
+# Running the tests
+
+The builder builds the test suite for a subject generator that you provide. Here, all the generator has to do is to supply an instance the calculator.
+
+```java
+public class TestsForCalculators {
+	public static Test suite() {
+		TestSuite suite = new TestSuite("Calculators");
+
+		suite.addTest(CalculatorTestSuiteBuilder.using(new CalculatorTestSubjectGenerator() {
+				@Override public Calculator createTestSubject() {
+					return new BigDecimalCalculator();
+				}})
+			.named("BigDecimalCalculator")
+			.createTestSuite());
+		
+		return suite;
 	}
 }
 ```
