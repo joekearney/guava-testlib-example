@@ -2,20 +2,18 @@ package joe.testlib;
 
 import java.util.List;
 
+import joe.testlib.testers.AddTester;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.testing.AbstractTester;
 import com.google.common.collect.testing.FeatureSpecificTestSuiteBuilder;
 
 public class CalculatorTestSuiteBuilder extends FeatureSpecificTestSuiteBuilder<CalculatorTestSuiteBuilder, CalculatorTestSubjectGenerator> {
 	@SuppressWarnings("rawtypes")
-	@Override
-	protected List<Class<? extends AbstractTester>> getTesters() {
-		return ImmutableList.<Class<? extends AbstractTester>>of();
+	@Override protected List<Class<? extends AbstractTester>> getTesters() {
+		return ImmutableList.of(AddTester.class);
 	}
-
 	public static CalculatorTestSuiteBuilder using(CalculatorTestSubjectGenerator generator) {
-		CalculatorTestSuiteBuilder builder = new CalculatorTestSuiteBuilder();
-		builder.usingGenerator(generator);
-		return builder;
+		return new CalculatorTestSuiteBuilder().usingGenerator(generator);
 	}
 }

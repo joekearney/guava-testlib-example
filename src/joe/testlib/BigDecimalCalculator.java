@@ -10,6 +10,6 @@ import java.math.BigDecimal;
 public final class BigDecimalCalculator implements Calculator {
 	@Override
 	public Number add(Number a, Number b) {
-		return new BigDecimal(a.toString()).add(new BigDecimal(b.toString()));
+		return Calculator.toBigDecimal(a).add(Calculator.toBigDecimal(b));
 	}
 }
