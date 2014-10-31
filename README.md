@@ -6,7 +6,7 @@ Guava Testlib was written to test collections implementations exhaustively. It's
 
 Tests can be annotated with `Feature`s that correspond to differences in implementations of the interface specification &ndash; the same set of tests can be used to test mutable and immutable collections, for example, and the framework will decide which tests to add to which suite.
 
-This project shows a simple and contrived example of how to set up these tests. We have a `Calculator` interface and various implementations that support some of the operations for some of the parameters.
+**This project shows a simple and contrived example** of how to set up these tests. We have a `Calculator` interface and various implementations that support some of the operations for some of the parameters.
 
 ***
 
